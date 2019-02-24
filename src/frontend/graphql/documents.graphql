@@ -1,7 +1,94 @@
-query queryUser($id: ObjectId!) {
-    getUser(id: $id) {
-        init_date
-        role
-        username
+mutation registerUser($req: RegisterRequest!) {
+    register(req: $req) {
+        jwt
+        user{
+            id
+            role
+            login
+            registrationDate
+            fullname
+            targetArea{
+                center{
+                    lon
+                    lat
+                }
+                radius
+            }
+            avaUrl
+            tgChatId
+            tgName
+            assignedEvents
+        }
+    }
+}
+
+query getAllEventPoints {
+    getAllEventPoints {
+        id
+        description
+        currentMembers
+        creator{
+            fullname
+        }
+        expectedMembers
+        startDate
+        location {
+            lat
+            lon
+        }
+    }
+}
+
+
+mutation loginUser($req: LoginRequest!) {
+    login(req: $req) {
+        jwt
+        user {
+            id
+            role
+            login
+            registrationDate
+            fullname
+            targetArea{
+                center{
+                    lon
+                    lat
+                }
+                radius
+            }
+            avaUrl
+            tgChatId
+            tgName
+            assignedEvents
+        }
+    }
+}
+
+mutation createEventPoint($req: CreateEventPointRequest!) {
+    createEventPoint(req: $req) {
+        id
+        description
+        currentMembers
+        creator {
+            fullname
+        }
+        expectedMembers
+        startDate
+        location {
+            lat
+            lon
+        }
+    }
+}
+
+mutation assignToEventPoint($id: ObjectId!) {
+    assignEventPoint(id: $id) {
+        currentMembers
+    }
+}
+
+mutation leaveEventPoint($id: ObjectId!) {
+    leaveEventPoint(id: $id) {
+        currentMembers
     }
 }

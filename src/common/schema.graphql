@@ -3,36 +3,128 @@
 # !!!   DO NOT MODIFY THIS FILE BY YOURSELF   !!!
 # -----------------------------------------------
 
+type Circle {
+  center: GeoPoint!
+  radius: Float!
+}
+
+input CreateCircleRequest {
+  center: CreateGeoPointRequest!
+  radius: Float!
+}
+
+input CreateEventPointRequest {
+  location: CreateGeoPointRequest!
+  description: String!
+  budget: Float
+  expectedMembers: Float!
+  startDate: DateTime!
+}
+
+input CreateGeoPointRequest {
+  lat: Float!
+  lon: Float!
+}
+
 # The javascript `Date` as string. Type represents date and time as the ISO Date string.
 scalar DateTime
 
-input LoginRequestType {
-  username: String!
+type EventPoint {
+  id: ObjectId!
+  location: GeoPoint!
+  description: String!
+  photoUrl: String
+  creatorId: ObjectId!
+  currentMembers: Int!
+  expectedMembers: Int!
+  budget: Float!
+  startDate: DateTime!
+  publishDate: DateTime!
+  creator: User!
+}
+
+type GeoPoint {
+  lat: Float!
+  lon: Float!
+}
+
+input LoginRequest {
+  login: String!
   password: String!
 }
 
-type LoginResponseType {
+type LoginResponse {
   jwt: String!
   user: User!
 }
 
 type Mutation {
-  login(req: LoginRequestType!): LoginResponseType
-  createUser(password: String!, name: String!): User!
+  login(req: LoginRequest!): LoginResponse
+  register(req: RegisterRequest!): LoginResponse!
+  createEventPoint(req: CreateEventPointRequest!): EventPoint!
+  updateEventPoint(req: UpdateEventPointRequest!): EventPoint!
+  deleteEventPoint(id: ObjectId!): EventPoint!
+  assignEventPoint(id: ObjectId!): EventPoint!
+  leaveEventPoint(id: ObjectId!): EventPoint!
 }
 
 # Bson ObjectId unique identifier (hexadecimal string).
 scalar ObjectId
 
 type Query {
+  getEventPoint(id: ObjectId!): EventPoint!
+  getAllEventPoints: [EventPoint!]!
   getUser(id: ObjectId!): User!
+  getMe: User!
+  updateMe(req: UpdateMeRequest!): User!
+}
+
+input RegisterRequest {
+  targetArea: CreateCircleRequest!
+  fullname: String!
+  login: String!
+  password: String!
+}
+
+input UpdateCircleRequest {
+  center: UpdateGeoPointRequest!
+  radius: Float!
+}
+
+input UpdateEventPointRequest {
+  id: ObjectId!
+  location: UpdateGeoPointRequest!
+  description: String!
+  budget: Float
+  expectedMembers: Float!
+  startDate: DateTime!
+  photoUrl: String!
+}
+
+input UpdateGeoPointRequest {
+  lat: Float!
+  lon: Float!
+}
+
+input UpdateMeRequest {
+  targetArea: UpdateCircleRequest
+  avaUrl: String
+  fullname: String
+  tgName: String
 }
 
 type User {
   id: ObjectId!
   role: UserRole!
-  username: String!
-  init_date: DateTime!
+  login: String!
+  registrationDate: DateTime!
+  fullname: String!
+  notification: Boolean!
+  targetArea: Circle!
+  avaUrl: String
+  tgChatId: String
+  tgName: String
+  assignedEvents: [ObjectId!]!
 }
 
 # Identifies user access level

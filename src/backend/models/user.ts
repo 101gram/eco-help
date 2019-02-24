@@ -3,12 +3,14 @@ import * as Crypto from 'crypto';
 import * as Utils  from '@modules/utils';
 import * as I      from '@modules/interfaces';
 import * as JWT    from 'jsonwebtoken';
-import { Typegoose, prop, staticMethod, instanceMethod } from 'typegoose';
-import { Field, ObjectType, registerEnumType             } from 'type-graphql';
-import { required, index, unique       } from '@modules/flags';
-import { TryCrud                       } from '@modules/mongoose-utils/try-crud';
-import { Paginator                     } from '@modules/mongoose-utils/paginate';
-import { IntegerRange                  } from '@modules/integer-range';
+import { Typegoose, prop, staticMethod, instanceMethod, arrayProp } from 'typegoose';
+import { Field, ObjectType, registerEnumType } from 'type-graphql';
+import { required, index, unique, nullable   } from '@modules/flags';
+import { TryCrud        } from '@modules/mongoose-utils/try-crud';
+import { Paginator      } from '@modules/mongoose-utils/paginate';
+import { IntegerRange   } from '@modules/integer-range';
+import { CircleType     } from "@models/circle";
+import { EventPointType } from '@models/event-point';
 
 export namespace UserPropLimits {
     export const PasswordLength = new IntegerRange(6, 38);
@@ -28,10 +30,9 @@ registerEnumType(UserRole, {
 });
 
 export interface Credentials {
-    username: string;
+    login: string;
     password: string;
 }
-
 
 
 @ObjectType('User')
@@ -41,12 +42,7 @@ export class UserType extends Typegoose implements Credentials {
     @prop()
     get id(this: User): I.ObjectId {
         return this._id;
-    }
-
-    // @Field()
-    // @prop({ required, default: false })
-    // disabled!: boolean;
-    
+    }    
 
     @Field(_type => UserRole) // must be explicitly forwarded when using enums
     @prop({ required, enum: Object.values(UserRole), default: UserRole.Regular })
@@ -56,12 +52,32 @@ export class UserType extends Typegoose implements Credentials {
     password!: string; // do not expose password as public GraphQL field
 
     @Field()
-    @prop({ required, index, unique }) 
-    username!: string;
+    @prop({ required, unique, index }) 
+    login!: string;
 
     @Field()
     @prop({ required, default: Date.now })
-    init_date!: Date;
+    registrationDate!: Date;
+
+    @Field()
+    @prop({ required })
+    fullname!: string;
+
+    @Field()
+    @prop({ required, default: true })
+    notification!: boolean;
+
+    @Field()
+    @prop({ required })
+    targetArea!: CircleType;
+
+    @Field(_type => String, {nullable}) @prop() avaUrl?:   string;
+    @Field(_type => String, {nullable}) @prop() tgChatId?: number;
+    @Field(_type => String, {nullable}) @prop() tgName?:   string;
+
+    @Field(_type => [I.ObjectId])
+    @arrayProp({ itemsRef: EventPointType, required, default: [] })
+    assignedEvents!: I.ObjectId[];
 
     /**
      * Searches for `User` with the given `username` and `password`. Password is 
@@ -72,9 +88,9 @@ export class UserType extends Typegoose implements Credentials {
      * 
      */
     @staticMethod
-    static async findByCredentials(this: UserModel, { username, password }: Credentials ) {
+    static async findByCredentials(this: UserModel, { login, password }: Credentials ) {
         return User.findOne({
-            username, 
+            login, 
             password: this.encodePassword(password)
         });
     }

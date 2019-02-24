@@ -7,6 +7,7 @@ import * as Config    from '@app/config';
 import { apiRouter } from '@routes/api';
 import { shutdown, Log } from '@modules/debug';
 import { makeApolloServer } from '@graphql/apollo-server';
+import { TgBot } from '@routes/telegram-bot';
 
 async function bootstrap() {
     // change to Promise.all() with MongoDB connection setup in production.
@@ -14,7 +15,12 @@ async function bootstrap() {
     const app = Express()
         .use(Morgan('dev'))
         .use(Express.static(Config.Frontend.DistDir))
-        .use(Express.static(Config.Frontend.AssetsDir));
+        .use(Express.static(Config.Frontend.AssetsDir))
+        .post(Config.TgBotWebhookEndpoint, (req, res) => {
+            // @TODO: vulnerability to incompatible body json type
+            TgBot.processUpdate(req.body);
+            res.sendStatus(200);
+        });
 
     apolloServer.applyMiddleware({ app, path: '/graphql'});
     

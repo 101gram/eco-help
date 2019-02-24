@@ -1,11 +1,14 @@
 import _ from 'lodash';
 import * as I from '@modules/interfaces';
-import * as MathJS from 'mathjs';
-import * as Vts    from 'vee-type-safe';
-import * as Coll   from 'typescript-collections';
+import * as MathJS   from 'mathjs';
+import * as Vts      from 'vee-type-safe';
+import * as Coll     from 'typescript-collections';
+// import * as Mongoose from 'mongoose';
 import { IntegerRange } from '@modules/integer-range';
 import { assert, Log  } from '@modules/debug';
-import { Typegoose    } from 'typegoose';
+import { Typegoose, getClassForDocument    } from 'typegoose';
+import { GeoPointType } from '@models/geo-point';
+import { CircleType } from '@models/circle';
 
 /**
  * Tries to read variable from `process.env` and returns its value.
@@ -30,7 +33,7 @@ export function tryReadEnv(variableId: string, defaultVal?: I.Maybe<string>) {
 
 
 export function getModelFromTypegoose<T extends I.ClassType<Typegoose>>(constr: T) {
-    return new constr().getModelForClass(constr) as I.TypegooseModel<T>;
+    return Vts.reinterpret<I.TypegooseModel<T>>(new constr().getModelForClass(constr));
 }
 
 /**
@@ -155,4 +158,17 @@ export function limitExecRate<
  */
 export function isPlainObject(suspect: unknown): suspect is Vts.BasicObject {
     return Vts.isBasicObject(suspect) && Object.getPrototypeOf(suspect) === Object.prototype;
+}
+
+
+export function docToObjectType(document: any) {
+    const objTypeClass = 'lat' in document._doc ? 
+        GeoPointType : 'radius' in document._doc ?
+        CircleType   : getClassForDocument(document);
+
+    const obj =  new objTypeClass();
+    Object.assign(obj, _.mapValues(document._doc, value => (
+        value._doc ? docToObjectType(value) : value
+    )));
+    return obj;
 }

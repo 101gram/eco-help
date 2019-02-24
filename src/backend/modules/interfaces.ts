@@ -6,6 +6,13 @@ import { ClassType } from '@common/interfaces';
 export * from '@common/interfaces';
 export { ObjectId  } from 'mongodb';
 
+export type MongooseDocument = Vts.RemoveProperties<Mongoose.Document, 'id'>;
+
+export type UpdateRequest<TData extends Vts.BasicObject> = (
+    Vts.MappedObject<Partial<TData>, unknown>
+);
+
+
 /**
  * Defines a type that filters function (method) properties from the given 
  * instance type.
@@ -24,7 +31,9 @@ export { ObjectId  } from 'mongodb';
  * // AnimalData === { name: string; force: number; }
  * ```
  */
-export type TypegooseDocProps<TInstance extends Typegoose> = (
+export type TypegooseDocProps<TInstance extends Typegoose> = InstanceTypeProps<TInstance>;
+
+export type InstanceTypeProps<TInstance extends Vts.BasicObject> = (
     FilterProps<TInstance, Function>
 );
 
@@ -79,5 +88,5 @@ export type TypegooseModel<TGDocClass extends ClassType> = (
  * Instance type of TypegooseModel<>.
  */
 export type TypegooseDocument<TGDocClass extends ClassType> = (
-    InstanceType<TGDocClass> & Mongoose.Document
+    InstanceType<TGDocClass> & MongooseDocument
 );

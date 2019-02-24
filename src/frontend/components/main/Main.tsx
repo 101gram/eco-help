@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { createStyles, withStyles, WithStyles, Theme } from '@material-ui/core/styles';
 import Router from '@router/root';
-import Breadcrumbs from '@components/partials/Breadcrumbs';
+// import Breadcrumbs from '@components/partials/Breadcrumbs';
 
 const styles = ({  spacing }: Theme) => createStyles({
     icon: {
@@ -40,7 +40,6 @@ class Main extends React.Component<Props, State> {
     render() {
         return (
             <main>
-                <Breadcrumbs />
                 <Router />
             </main>
         );

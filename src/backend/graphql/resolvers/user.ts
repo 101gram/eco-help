@@ -1,11 +1,14 @@
 import * as I from '@modules/interfaces';
-import { UserType, UserTryCrud, User } from '@models/user';
+import { UserType, UserTryCrud } from '@models/user';
 import { 
     Resolver,
     Query,
     Arg,
-    Mutation
+    Ctx,
+    Authorized
 } from 'type-graphql';
+import { ResolveContext } from '@graphql/resolve-context';
+import { UpdateMeRequest } from '@graphql/types/update-me-request';
 
 
 @Resolver()
@@ -15,11 +18,18 @@ export class UserResolver {// implements ResolverInterface<UserData> {
     async getUser(@Arg('id') id: I.ObjectId) {
         return UserTryCrud.tryFindById(id);
     }
-   
-    @Mutation(_type => UserType)
-    async createUser(@Arg('name') name: string, @Arg('password') password: string) {
-        return User.create({ name, password });
+
+    @Query(_returns => UserType)
+    getMe(@Ctx() {user}: ResolveContext) {
+        return user;
     }
-    
+   
+
+    @Authorized()
+    @Query(_returns => UserType)
+    async updateMe(@Ctx() ctx: ResolveContext, @Arg('req') req: UpdateMeRequest) {
+        // @TODO remove null from required props
+        return UserTryCrud.tryUpdateById(ctx.user!.id, req);
+    }
 }
 

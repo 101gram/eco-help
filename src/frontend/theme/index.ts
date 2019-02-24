@@ -1,9 +1,8 @@
 import { createMuiTheme } from '@material-ui/core/styles';
 
 const palette = {
-    primary: { main: '#4527A0' },
-    secondary: { main: '#283593' },
-    
+    primary: { main: '#1B5E20' },
+    secondary: { main: '#004D40' }
 };
 
-export default createMuiTheme({ palette, typography: { useNextVariants: true } });
+export default createMuiTheme({ palette, typography: { useNextVariants: true }});

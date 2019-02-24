@@ -1,3 +1,4 @@
+import * as I from '@modules/interfaces';
 import * as Mongoose from 'mongoose';
 import * as      Vts from 'vee-type-safe';
 import { ObjectId      } from '@modules/interfaces';
@@ -14,7 +15,7 @@ export class IdNotFoundError extends NotFoundError {
  * Simple utility class that provides exception-driven mongoose CRUD functionality.
  * @param TDoc Type of target mongoose documents.
  */
-export class TryCrud<TDoc extends Mongoose.Document = Mongoose.Document> {
+export class TryCrud<TDoc extends I.MongooseDocument = I.MongooseDocument> {
     /**
      * Instanciates TryCrud utility class that is bound to the given `model`
      * @param model Target `Mongoose.Model` to bind to.

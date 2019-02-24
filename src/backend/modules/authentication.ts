@@ -15,7 +15,7 @@ Passport.use(new JWTStrategy({
         secretOrKey:    Config.JWT.KeyPair.public
     },
     async (untrustedJwtPayload: unknown, done) => {
-        const mismatch = Vts.mismatch(untrustedJwtPayload, I.JWT.PayloadTD);
+        const mismatch = Vts.duckMismatch(untrustedJwtPayload, I.JWT.PayloadTD);
         if (mismatch != null) {
             return done(new ForbiddenError(`invalid jwt, ${mismatch.toErrorString()}`));
         }
@@ -32,8 +32,8 @@ export async function authenticateJWT(req: Express.Request) {
         ? null 
         : new Promise<I.Maybe<User>>(
             (resolve, reject) => Passport.authenticate('jwt', { session: false },
-                (err, user?: I.Maybe<User>) => {
-                    return err != null ? reject(err) : resolve(user);
+                (err, user?: I.Maybe<User> | false) => {
+                    return err != null ? reject(err) : resolve(user === false ? null : user);
                 }
             )(req)
         );

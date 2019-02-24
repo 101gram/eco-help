@@ -1,19 +1,22 @@
 import * as Express from 'express';
 import * as I       from '@modules/interfaces';
-import { User         } from '@models/user';
+import { User            } from '@models/user';
 import { authenticateJWT } from '@modules/authentication';
+
 
 export interface ResolveContext {
     user?: I.Maybe<User>;
 }
 
-export interface ResolveContextFactoryOptions{ 
+export interface AuthorizedResolveContext extends ResolveContext {
+    user: User;
+}
+
+export interface ResolveContextFactoryOptions { 
     req: Express.Request;
     // res: Express.Response;
 }
 
-export async function makeContext(
-    {req}: ResolveContextFactoryOptions
-): Promise<ResolveContext> {
+export async function makeContext({req}: ResolveContextFactoryOptions): Promise<ResolveContext> {
     return { user: await authenticateJWT(req) };
 }

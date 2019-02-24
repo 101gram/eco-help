@@ -1,3 +1,4 @@
+import * as I from '@modules/interfaces';
 import _ from 'lodash';
 import escapeStringRegexp from 'escape-string-regexp';
 import * as Vts      from 'vee-type-safe';
@@ -79,7 +80,7 @@ export interface PaginatorOptions<TDocData extends Vts.BasicObject> {
     /**
      * Target model, to paginate documents.
      */
-    model:   Mongoose.Model<Mongoose.Document>;
+    model:   Mongoose.Model<I.MongooseDocument>;
     /**
      * An object that maps public aliases to document's fields.
      * E.g. if you want to expose `_id` field as `id`, you should
@@ -98,7 +99,7 @@ export interface PaginatorOptions<TDocData extends Vts.BasicObject> {
  */
 export class Paginator<
     TDocData      extends Vts.BasicObject, 
-    TDoc          extends Mongoose.Document,
+    TDoc          extends I.MongooseDocument,
     TPublicFields extends string = Extract<keyof TDocData, string>
 >{
     private readonly model:      Mongoose.Model<Mongoose.Document>;
